@@ -65,14 +65,14 @@ requiresNetwork=true，两者 requiresCell=false、monetaryCost=false、altitude
 powerRequirement=1、accuracy=1；未授权时拒绝写入；两条通道写入的坐标一致、精度分别 3/10 米、高度 0、
 速度/方位/时间字段透传；Fused 写入失败不影响主通道；两个 provider 都失败才判定失败；cleanup 会禁用并移除两个 provider。
 
-## 3. Robolectric Android 层测试：22/22 通过
+## 3. Robolectric Android 层测试：24/24 通过
 
 ```bash
 node tools/fetch-test-deps.mjs     # 首次执行：下载并校验 android-all jar（约 350MB）
 ./tools/run-android-tests.sh       # 跑 :app:testDebugUnitTest
 ```
 
-不需要设备或模拟器：Robolectric 在 JVM 上提供 Android 框架桩。实测 22 个用例全部通过：
+不需要设备或模拟器：Robolectric 在 JVM 上提供 Android 框架桩。实测 24 个用例全部通过：
 
 | 测试类 | 用例数 | 覆盖内容 |
 |---|---|---|
@@ -80,7 +80,7 @@ node tools/fetch-test-deps.mjs     # 首次执行：下载并校验 android-all 
 | `MockLocationServiceTest` | 5 | 前台服务：单点每秒注入且坐标为下发值、gps 3 米/network 10 米精度；路线按 tick 推进、100 m/s 跑完 1000 米后 `routeCompleted` 且 `running` 仍为 true、注入速度归零；暂停期间不推进、恢复后继续；停止后清理 provider 且不再注入；未授权时不启动并给出失败原因 |
 | `PlaceStoreTest` | 4 | SQLite schema（`records`、`saved_routes` 的列名逐项断言）；收藏增删改查与查重；历史保留最近 N 条；路线坐标编码与读取 |
 | `MockEngineFullChainTest` | 4 | 不替换注入实现：生产 `MockEngine` → 真实 `LocationManager` API → 记录型影子，断言 addTestProvider 的 9 个参数、gps 3 米/network 10 米精度、坐标/速度/方位/时间字段、AppOps 拒绝时不写入、cleanup 的禁用与移除 |
-| `MockLocationServiceRealEngineTest` | 2 | 真实服务 + 生产 `MockEngine` 的端到端链路：onStartCommand → 授权 → 建 provider → 每秒写 Location；停止后限制 provider 并停止注入 |
+| `MockLocationServiceRealEngineTest` | 4 | 真实服务 + 生产 `MockEngine` 的端到端链路：单点从 onStartCommand 到系统接口；路线 3 秒后坐标北移、13 秒后完成并停在终点且速度归零；暂停后每秒仍注入但坐标不再变化；停止后清理 provider 并停止注入 |
 | `MainActivitySmokeTest` | 4 | 主界面加载（抽屉 6 项、标题、地图页）、抽屉切换到收藏页、自检对话框弹出并显示六项检查容器、debug 指令 `start_static` 发出带经纬度的 `START_MOCK` 服务 Intent |
 
 说明：第 4、5 组测试替身了一个记录型 `LocationManager` 影子，因此「服务 → 生产注入实现 → 系统接口」整条链路
