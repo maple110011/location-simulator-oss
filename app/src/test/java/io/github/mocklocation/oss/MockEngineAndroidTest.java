@@ -32,24 +32,37 @@ public class MockEngineAndroidTest {
 
     private void setMockLocationOp(int mode) {
         AppOpsManager appOps = (AppOpsManager) app().getSystemService(Context.APP_OPS_SERVICE);
+        // OP_MOCK_LOCATION 是隐藏常量，不能用；AppOpsManager 只暴露字符串版 OPSTR_MOCK_LOCATION。
         Shadows.shadowOf(appOps).setMode(AppOpsManager.OPSTR_MOCK_LOCATION,
                 Process.myUid(), app().getPackageName(), mode);
     }
 
+    private String modeInfo() {
+        AppOpsManager appOps = (AppOpsManager) app().getSystemService(Context.APP_OPS_SERVICE);
+        int mode;
+        try {
+            mode = appOps.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_MOCK_LOCATION, Process.myUid(), app().getPackageName());
+        } catch (Throwable t) {
+            mode = -999;
+        }
+        return "appOps.mode=" + mode;
+    }
+
     @Test
     public void 默认未授权时判定为未选中() {
-        assertFalse(MockEngine.isSelectedMockApp(app()));
+        setMockLocationOp(AppOpsManager.MODE_DEFAULT);
+        assertFalse(modeInfo(), MockEngine.isSelectedMockApp(app()));
     }
 
     @Test
     public void AppOps允许时判定为已选中() {
         setMockLocationOp(AppOpsManager.MODE_ALLOWED);
-        assertTrue(MockEngine.isSelectedMockApp(app()));
+        assertTrue(modeInfo(), MockEngine.isSelectedMockApp(app()));
     }
 
     @Test
     public void AppOps显式拒绝时判定为未选中() {
-        setMockLocationOp(AppOpsManager.MODE_IGNORED);
-        assertFalse(MockEngine.isSelectedMockApp(app()));
+        setMockLocationOp(AppOpsManager.MODE_ERRORED);
+        assertFalse(modeInfo(), MockEngine.isSelectedMockApp(app()));
     }
 }
