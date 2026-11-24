@@ -122,7 +122,7 @@ public class MockLocationServiceTest {
         int rc = service.onStartCommand(staticIntent(39.9042, 116.4074), 0, 0);
         assertEquals(MockLocationService.START_REDELIVER_INTENT, rc);
         assertTrue(service.getState().running);
-        assertEquals(1, sink.specs.size() + 1); // 至少建立一个测试 provider（gps 或 network）
+        assertTrue("启动时应建立 gps/network 测试 provider", sink.specs.size() >= 1);
 
         ShadowLooper.idleMainLooper(1, TimeUnit.SECONDS);
         int afterFirst = sink.gpsFields.size();
