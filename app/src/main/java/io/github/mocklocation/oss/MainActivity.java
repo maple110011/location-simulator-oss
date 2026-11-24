@@ -131,8 +131,16 @@ public class MainActivity extends AppCompatActivity
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            MockLocationService.LocalBinder binder = (MockLocationService.LocalBinder) service;
-            mockService = binder.getService();
+            // 某些环境下系统可能在服务尚未就绪时回调空 binder（例如测试框架），这里做防御，
+            // 避免界面直接崩溃；真实设备上 binder 总是 LocalBinder。
+            if (!(service instanceof MockLocationService.LocalBinder)) {
+                return;
+            }
+            MockLocationService connected = ((MockLocationService.LocalBinder) service).getService();
+            if (connected == null) {
+                return;
+            }
+            mockService = connected;
             serviceBound = true;
             mockService.addListener(MainActivity.this);
             onMockStateChanged(mockService.getState());
