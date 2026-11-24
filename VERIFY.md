@@ -59,6 +59,26 @@
 继续注入终点、注入速度 0；循环路线对总长取模、永不完成；GPS 精度 3 米、network 精度 10 米、高度 0、
 速度精度 0.2 m/s、方位精度 2°、垂直精度等于水平精度；状态模型进度百分比 clamp 与注入速度语义正确。
 
+## 2.5 Robolectric Android 层测试：12/12 通过
+
+```bash
+node tools/fetch-test-deps.mjs     # 首次执行：下载并校验 android-all jar（约 350MB）
+./tools/run-android-tests.sh       # 跑 :app:testDebugUnitTest
+```
+
+不需要设备或模拟器：Robolectric 在 JVM 上提供 Android 框架桩。实测 12 个用例全部通过：
+
+| 测试类 | 用例数 | 覆盖内容 |
+|---|---|---|
+| `MockEngineAndroidTest` | 3 | `AppOpsManager` 的 `android:mock_location` 判定：默认未选中、MODE_ALLOWED 选中、MODE_ERRORED 拒绝 |
+| `MockLocationServiceTest` | 5 | 前台服务：单点每秒注入且坐标为下发值、gps 3 米/network 10 米精度；路线按 tick 推进、100 m/s 跑完 1000 米后 `routeCompleted` 且 `running` 仍为 true、注入速度归零；暂停期间不推进、恢复后继续；停止后清理 provider 且不再注入；未授权时不启动并给出失败原因 |
+| `PlaceStoreTest` | 4 | SQLite schema 与原软件 Room 一致（`records`、`saved_routes` 的列名逐项断言）；收藏增删改查与查重；历史保留最近 N 条；路线坐标编码与读取 |
+
+环境说明（实测踩过的坑，已固化进脚本与 `app/build.gradle`）：
+Robolectric 4.14.1 需要 API 34 与 API 35 两份 `android-all-instrumented` jar；测试 JVM 必须把
+`java.io.tmpdir` 指到工程内（本机 `C:\\WINDOWS\\TEMP` 的 ACL 会让测试进程报 `AccessDeniedException`）；
+`OP_MOCK_LOCATION` 是隐藏常量，测试里只能用公开的 `AppOpsManager.OPSTR_MOCK_LOCATION`。
+
 ## 3. APK 静态验证
 
 用 SDK 自带 `aapt2 dump badging` 检查产物：
