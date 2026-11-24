@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Map</title>
+<link rel="stylesheet" href="leaflet.css">
+<style>
+  html, body, #map { width: 100%; height: 100%; margin: 0; padding: 0; background: #e9edf2; }
+  .num-badge { background: #1565c0; color: #fff; border-radius: 50%; width: 22px; height: 22px;
+               line-height: 22px; text-align: center; font: bold 12px sans-serif; border: 2px solid #fff;
+               box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+  .here-dot { width: 16px; height: 16px; border-radius: 50%; background: #1e88e5;
+              border: 3px solid #fff; box-shadow: 0 0 0 6px rgba(30,136,229,.25); }
+  .target-pin { width: 18px; height: 18px; border-radius: 50%; background: #e53935;
+                border: 3px solid #fff; box-shadow: 0 1px 6px rgba(0,0,0,.45); }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script src="leaflet.js"></script>
+<script>
+  var map;
+  var tileLayer = null;
+  var targetMarker = null;
+  var hereMarker = null;
+  var routeLayer = null;
+  var routeMarkers = [];
+  var mode = 'location';
+
+  var TILES = {
+    osm:      { url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attr: '&copy; OpenStreetMap', max: 19 },
+    carto:    { url: 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', attr: '&copy; CARTO', max: 20 },
+    opentopo: { url: 'https://a.tile.opentopomap.org/{z}/{x}/{y}.png', attr: '&copy; OpenTopoMap', max: 17 }
+  };
+
+  function notifyReady() {
+    if (window.Android && Android.onMapReady) Android.onMapReady();
+  }
+
+  function init() {
+    map = L.map('map', { zoomControl: false, tap: false }).setView([39.9042, 116.4074], 12);
+    setTileLayer('osm');
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    map.on('click', function (e) {
+      if (window.Android && Android.onMapTap) {
+        Android.onMapTap(e.latlng.lat, e.latlng.lng);
+      }
+    });
+    notifyReady();
+  }
+
+  function setTileLayer(name) {
+    var preset = TILES[name] || TILES.osm;
+    if (tileLayer) { map.removeLayer(tileLayer); }
+    tileLayer = L.tileLayer(preset.url, { maxZoom: preset.max, attribution: preset.attr }).addTo(map);
+  }
+
+  function setMode(nextMode) {
+    mode = nextMode;
+  }
+
+  function setTarget(lat, lng, label) {
+    if (targetMarker) { map.removeLayer(targetMarker); }
+    var icon = L.divIcon({ className: '', html: '<div class="target-pin"></div>', iconSize: [18, 18], iconAnchor: [9, 9] });
+    targetMarker = L.marker([lat, lng], { icon: icon, title: label || '' }).addTo(map);
+  }
+
+  function clearTarget() {
+    if (targetMarker) { map.removeLayer(targetMarker); targetMarker = null; }
+  }
+
+  function setHere(lat, lng) {
+    if (hereMarker) { map.removeLayer(hereMarker); }
+    var icon = L.divIcon({ className: '', html: '<div class="here-dot"></div>', iconSize: [16, 16], iconAnchor: [8, 8] });
+    hereMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
+  }
+
+  function clearHere() {
+    if (hereMarker) { map.removeLayer(hereMarker); hereMarker = null; }
+  }
+
+  function clearRoute() {
+    if (routeLayer) { map.removeLayer(routeLayer); routeLayer = null; }
+    for (var i = 0; i < routeMarkers.length; i++) { map.removeLayer(routeMarkers[i]); }
+    routeMarkers = [];
+  }
+
+  /** points: [{lat:..., lng:...}, ...]，按顺序画折线与编号点。 */
+  function setRoute(points) {
+    clearRoute();
+    if (!points || points.length === 0) return;
+    var latlngs = points.map(function (p) { return [p.lat, p.lng]; });
+    routeLayer = L.polyline(latlngs, { color: '#1565c0', weight: 5, opacity: 0.85 }).addTo(map);
+    for (var i = 0; i < latlngs.length; i++) {
+      var icon = L.divIcon({ className: '', html: '<div class="num-badge">' + (i + 1) + '</div>',
+                             iconSize: [22, 22], iconAnchor: [11, 11] });
+      routeMarkers.push(L.marker(latlngs[i], { icon: icon }).addTo(map));
+    }
+  }
+
+  function fitRoute() {
+    if (!routeLayer) return;
+    map.fitBounds(routeLayer.getBounds(), { padding: [48, 48] });
+  }
+
+  function centerOn(lat, lng, zoom) {
+    map.setView([lat, lng], zoom || map.getZoom());
+  }
+
+  function getZoom() { return map.getZoom(); }
+
+  init();
+</script>
+</body>
+</html>

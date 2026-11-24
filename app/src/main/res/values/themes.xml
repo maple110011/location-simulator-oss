@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 与工程骨架同名的主题：若工程里已有 Theme.MockLocationOss，以本文件的定义覆盖。 -->
+    <style name="Theme.MockLocationOss" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryVariant">@color/color_primary_dark</item>
+        <item name="colorOnPrimary">#FFFFFFFF</item>
+        <item name="colorSecondary">@color/color_accent</item>
+        <item name="colorAccent">@color/color_accent</item>
+        <item name="android:statusBarColor">@color/color_primary_dark</item>
+        <item name="android:windowBackground">@color/color_background</item>
+    </style>
+
+    <!-- 页面内卡片标题样式 -->
+    <style name="TextAppearance.MockLocation.CardTitle" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- 页面内说明文字样式 -->
+    <style name="TextAppearance.MockLocation.Caption" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+</resources>
