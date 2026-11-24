@@ -15,7 +15,7 @@
 
 | 项目 | 值 |
 |---|---|
-| 结果 | `BUILD SUCCESSFUL`（Gradle 8.2 增量构建约 10 秒；清空 `app/build` 后全量约 18 秒） |
+| 结果 | `BUILD SUCCESSFUL`（Gradle 8.2 增量构建约 1–10 秒；清空 `app/build` 后全量约 18 秒） |
 | 产物 | `app/build/outputs/apk/debug/app-debug.apk` |
 | 工具链 | JDK 21.0.12.1（Temurin）· Gradle 8.2 · AGP 8.2.0 · Android SDK platform 34 / build-tools 34.0.0 |
 | 依赖 | 全部来自 `build-tools/gradle-home` 缓存，`--offline` 构建，不联网 |
@@ -65,20 +65,26 @@ requiresNetwork=true，两者 requiresCell=false、monetaryCost=false、altitude
 powerRequirement=1、accuracy=1；未授权时拒绝写入；两条通道写入的坐标一致、精度分别 3/10 米、高度 0、
 速度/方位/时间字段透传；Fused 写入失败不影响主通道；两个 provider 都失败才判定失败；cleanup 会禁用并移除两个 provider。
 
-## 3. Robolectric Android 层测试：12/12 通过
+## 3. Robolectric Android 层测试：18/18 通过
 
 ```bash
 node tools/fetch-test-deps.mjs     # 首次执行：下载并校验 android-all jar（约 350MB）
 ./tools/run-android-tests.sh       # 跑 :app:testDebugUnitTest
 ```
 
-不需要设备或模拟器：Robolectric 在 JVM 上提供 Android 框架桩。实测 12 个用例全部通过：
+不需要设备或模拟器：Robolectric 在 JVM 上提供 Android 框架桩。实测 18 个用例全部通过：
 
 | 测试类 | 用例数 | 覆盖内容 |
 |---|---|---|
 | `MockEngineAndroidTest` | 3 | `AppOpsManager` 的 `android:mock_location` 判定：默认未选中、MODE_ALLOWED 选中、MODE_ERRORED 拒绝 |
 | `MockLocationServiceTest` | 5 | 前台服务：单点每秒注入且坐标为下发值、gps 3 米/network 10 米精度；路线按 tick 推进、100 m/s 跑完 1000 米后 `routeCompleted` 且 `running` 仍为 true、注入速度归零；暂停期间不推进、恢复后继续；停止后清理 provider 且不再注入；未授权时不启动并给出失败原因 |
 | `PlaceStoreTest` | 4 | SQLite schema（`records`、`saved_routes` 的列名逐项断言）；收藏增删改查与查重；历史保留最近 N 条；路线坐标编码与读取 |
+| `MockEngineFullChainTest` | 4 | 不替换注入实现：生产 `MockEngine` → 真实 `LocationManager` API → 记录型影子，断言 addTestProvider 的 9 个参数、gps 3 米/network 10 米精度、坐标/速度/方位/时间字段、AppOps 拒绝时不写入、cleanup 的禁用与移除 |
+| `MockLocationServiceRealEngineTest` | 2 | 真实服务 + 生产 `MockEngine` 的端到端链路：onStartCommand → 授权 → 建 provider → 每秒写 Location；停止后限制 provider 并停止注入 |
+
+说明：第 4、5 组测试替身了一个记录型 `LocationManager` 影子，因此「服务 → 生产注入实现 → 系统接口」整条链路
+在 JVM 上也能被断言。这套测试实际发现了一个真实缺陷：服务启动路径漏掉了 `ensureTestProviders()` 调用，
+真机上会表现为「开始模拟后没有任何坐标写入」；该缺陷已修复（见 `MockLocationService.checkPreconditions`）。
 
 环境说明（实测踩过的坑，已固化进脚本与 `app/build.gradle`）：Robolectric 4.14.1 需要 API 34 与 API 35 两份
 `android-all-instrumented` jar；测试 JVM 必须把 `java.io.tmpdir` 指到工程内（本机 `C:\\WINDOWS\\TEMP` 的 ACL
