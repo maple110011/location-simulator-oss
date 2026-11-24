@@ -111,6 +111,7 @@ public class MockLocationService extends Service {
             // 系统重建服务时没有 Intent：只有仍在运行中才重新拉起前台。
             if (state.running) {
                 ensureForeground();
+                engine.ensureTestProviders();
                 scheduleTick(0L);
                 return START_REDELIVER_INTENT;
             }
@@ -196,6 +197,11 @@ public class MockLocationService extends Service {
     private boolean checkPreconditions() {
         if (!MockEngine.isSelectedMockApp(this)) {
             fail(getString(R.string.error_not_mock_app));
+            return false;
+        }
+        // 先把 gps/network 两个测试 provider 建立并启用，之后每秒 setTestProviderLocation 才有落点。
+        if (!engine.ensureTestProviders()) {
+            fail(getString(R.string.error_injection_failed));
             return false;
         }
         return true;
