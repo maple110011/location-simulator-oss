@@ -65,14 +65,14 @@ requiresNetwork=true，两者 requiresCell=false、monetaryCost=false、altitude
 powerRequirement=1、accuracy=1；未授权时拒绝写入；两条通道写入的坐标一致、精度分别 3/10 米、高度 0、
 速度/方位/时间字段透传；Fused 写入失败不影响主通道；两个 provider 都失败才判定失败；cleanup 会禁用并移除两个 provider。
 
-## 3. Robolectric Android 层测试：18/18 通过
+## 3. Robolectric Android 层测试：22/22 通过
 
 ```bash
 node tools/fetch-test-deps.mjs     # 首次执行：下载并校验 android-all jar（约 350MB）
 ./tools/run-android-tests.sh       # 跑 :app:testDebugUnitTest
 ```
 
-不需要设备或模拟器：Robolectric 在 JVM 上提供 Android 框架桩。实测 18 个用例全部通过：
+不需要设备或模拟器：Robolectric 在 JVM 上提供 Android 框架桩。实测 22 个用例全部通过：
 
 | 测试类 | 用例数 | 覆盖内容 |
 |---|---|---|
@@ -81,6 +81,7 @@ node tools/fetch-test-deps.mjs     # 首次执行：下载并校验 android-all 
 | `PlaceStoreTest` | 4 | SQLite schema（`records`、`saved_routes` 的列名逐项断言）；收藏增删改查与查重；历史保留最近 N 条；路线坐标编码与读取 |
 | `MockEngineFullChainTest` | 4 | 不替换注入实现：生产 `MockEngine` → 真实 `LocationManager` API → 记录型影子，断言 addTestProvider 的 9 个参数、gps 3 米/network 10 米精度、坐标/速度/方位/时间字段、AppOps 拒绝时不写入、cleanup 的禁用与移除 |
 | `MockLocationServiceRealEngineTest` | 2 | 真实服务 + 生产 `MockEngine` 的端到端链路：onStartCommand → 授权 → 建 provider → 每秒写 Location；停止后限制 provider 并停止注入 |
+| `MainActivitySmokeTest` | 4 | 主界面加载（抽屉 6 项、标题、地图页）、抽屉切换到收藏页、自检对话框弹出并显示六项检查容器、debug 指令 `start_static` 发出带经纬度的 `START_MOCK` 服务 Intent |
 
 说明：第 4、5 组测试替身了一个记录型 `LocationManager` 影子，因此「服务 → 生产注入实现 → 系统接口」整条链路
 在 JVM 上也能被断言。这套测试实际发现了一个真实缺陷：服务启动路径漏掉了 `ensureTestProviders()` 调用，
@@ -134,8 +135,15 @@ APK 内容抽检：
 
 该入口只在 `BuildConfig.DEBUG` 构件里生效，release 包不会响应任何 `VERIFY` 指令。
 
-**当前状态**：本机所在虚拟化环境无法运行 Android 模拟器（WHPX 下 guest 不执行指令、TCG 同样停滞），
-因此设备端脚本尚未产出通过记录；有真机时执行 `./tools/device-verify.sh` 即可得到结果。
+**当前状态**：本机所在虚拟化环境无法运行 Android 模拟器。已实测两种加速方式都不可用：
+
+- WHPX：`emulator -accel-check` 报告 "WHPX is installed and usable"，但模拟器进程在打印
+  "Windows Hypervisor Platform accelerator is operational" 后立即退出（退出码 0x40000015）；
+- TCG（`-accel off`）：qemu 进程能启动并让 `adb devices` 看到 `emulator-5554 offline`，但 guest 不执行指令：
+  qemu 的 CPU 时间停在 0.48 秒不再增长，`sys.boot_completed` 永远读不到。
+
+这是宿主嵌套虚拟化限制，不是应用缺陷。因此设备端脚本尚未产出通过记录；接上真机后执行
+`./tools/device-verify.sh` 即可得到结果。
 
 ## 7. 设备走查记录
 

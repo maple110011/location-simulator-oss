@@ -48,7 +48,7 @@
 ```bash
 ./tools/run-selftest.sh              # 90 项断言：几何 28 + 状态机 36 + 注入 26
 node tools/fetch-test-deps.mjs       # 首次执行：下载 Robolectric 所需的 android-all jar
-./tools/run-android-tests.sh         # 18 项 Robolectric 测试：AppOps 判定 / 服务 tick / SQLite / 全链路
+./tools/run-android-tests.sh         # 22 项 Robolectric 测试：AppOps / 服务 tick / SQLite / 全链路 / 主界面
 ```
 
 设备（真机或模拟器）上的端到端验证：
