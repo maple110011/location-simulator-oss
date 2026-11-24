@@ -1,0 +1,106 @@
+plugins {
+    id 'com.android.application'
+}
+
+// ---------------------------------------------------------------------------
+// 可移植性：本机开发环境把工具链和调试签名放在固定目录，换机器/CI 时可用
+// Gradle 属性（-P）或环境变量覆盖，未覆盖时回退到本机默认值。
+//   -PmockLocationKeystore=...  / MOCK_LOCATION_KEYSTORE
+//   -ProbolectricDepsDir=...    / ROBOLECTRIC_DEPS_DIR
+// ---------------------------------------------------------------------------
+def keystoreCandidate = (findProperty('mockLocationKeystore')
+        ?: System.getenv('MOCK_LOCATION_KEYSTORE')
+        ?: 'E:/software/ss/Deepseek-Harness/build-tools/debug.keystore')
+def localKeystore = file(keystoreCandidate)
+// 本机开发机把 jar 放在 build-tools/robolectric-deps；其它环境回退到工程内 .robolectric-deps。
+def legacyDepsDir = new File('E:/software/ss/Deepseek-Harness/build-tools/robolectric-deps')
+def depsDir = (findProperty('robolectricDepsDir')
+        ?: System.getenv('ROBOLECTRIC_DEPS_DIR')
+        ?: (legacyDepsDir.exists() ? legacyDepsDir.absolutePath
+                                   : new File(rootProject.projectDir, '.robolectric-deps').absolutePath))
+
+android {
+    namespace 'io.github.mocklocation.oss'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "io.github.mocklocation.oss"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "0.1.0"
+
+        // 只保留中文资源即可，避免为未翻译语言额外生成资源。
+        resConfigs "zh", "en"
+    }
+
+    signingConfigs {
+        // 本机存在固定调试签名时复用它，保证多次构建产物一致；不存在时（换机器/CI）
+        // 不声明该配置，AGP 会自动生成标准的 ~/.android/debug.keystore。
+        if (localKeystore.exists()) {
+            debug {
+                storeFile localKeystore
+                storePassword "android"
+                keyAlias "androiddebugkey"
+                keyPassword "android"
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            if (localKeystore.exists()) {
+                signingConfig signingConfigs.debug
+            }
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    buildFeatures {
+        // AGP 8 默认不生成 BuildConfig；debug 验证入口需要 BuildConfig.DEBUG 判断。
+        buildConfig true
+    }
+
+    compileOptions {
+        // Java 8 语法，与 minSdk 24 兼容（无 desugaring 需求）。
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            all {
+                // Robolectric 会在 java.io.tmpdir 下建临时目录；本机 C:\\WINDOWS\\TEMP 的 ACL
+                // 会让测试进程报 AccessDeniedException，因此把测试 JVM 的临时目录固定到工程内。
+                it.jvmArgs "-Djava.io.tmpdir=${rootProject.projectDir}/.tmp"
+                it.systemProperty 'java.io.tmpdir', "${rootProject.projectDir}/.tmp"
+                mkdir "${rootProject.projectDir}/.tmp"
+                // Robolectric 离线模式：用预下载的 android-all jar，避免测试时联网
+                it.systemProperty 'robolectric.offline', 'true'
+                it.systemProperty 'robolectric.dependency.dir', depsDir
+                it.systemProperty 'robolectric.logging.enabled', 'false'
+                it.systemProperty 'robolectric.sdk', '34'
+            }
+        }
+    }
+
+    lint {
+        // 骨架阶段先不因 lint 告警中断构建。
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    // JVM 单元测试（Robolectric 提供 Android 框架桩，不需要设备）
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.14.1'
+    testImplementation 'androidx.test:core:1.6.1'
+}

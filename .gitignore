@@ -1,0 +1,18 @@
+*.iml
+.gradle/
+local.properties
+.idea/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+# 构建脚本重定向的 Android 用户目录（沙箱内可写）
+.android-home/
+# 构建日志
+*.log
+.tmp/
+build-verify.log
+.build-start-epoch
+.build-end-epoch
+tools/.selftest-out/
+.robolectric-deps/
