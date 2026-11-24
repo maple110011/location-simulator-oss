@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">模拟定位</string>
+
+    <!-- 抽屉导航与页面标题 -->
+    <string name="nav_open_drawer">打开导航抽屉</string>
+    <string name="nav_close_drawer">关闭导航抽屉</string>
+    <string name="title_location_simulator">本应用</string>
+    <string name="title_coordinate_input">坐标输入</string>
+    <string name="title_favorites">收藏</string>
+    <string name="title_history">历史</string>
+    <string name="title_routes">路线</string>
+    <string name="title_settings">设置</string>
+    <string name="drawer_header_subtitle">管理你的位置记录</string>
+    <string name="nav_map">地图</string>
+    <string name="nav_coordinate_input">坐标输入</string>
+    <string name="nav_favorites">收藏</string>
+    <string name="nav_history">历史</string>
+    <string name="nav_routes">路线</string>
+    <string name="nav_settings">设置</string>
+
+    <!-- 前台服务通知（MockLocationService 已引用的 id，不可改名） -->
+    <string name="notification_channel_name">模拟定位服务</string>
+    <string name="notification_channel_description">模拟定位运行时的常驻通知，可在此暂停路线或停止模拟。</string>
+    <string name="notification_route_title">正在沿路线模拟位置</string>
+    <string name="notification_mock_title">正在模拟位置</string>
+    <string name="notification_fetching">正在获取位置…</string>
+    <string name="notification_route_status">%1$.1f km/h · %2$s</string>
+    <string name="notification_pause_route">暂停</string>
+    <string name="notification_resume_route">继续</string>
+    <string name="notification_stop">停止</string>
+    <string name="route_needs_two_points">请至少添加两个路线点</string>
+    <string name="route_invalid">路线无效：请检查路线点与速度</string>
+    <string name="error_not_mock_app">未把本应用设为「模拟位置应用」，请在开发者选项中选择本应用</string>
+    <string name="error_injection_failed">位置注入失败，请检查模拟位置应用授权</string>
+
+    <!-- 地图页：状态与选中位置 -->
+    <string name="selected_location_title">当前选中的位置：</string>
+    <string name="selected_location_none">尚未选择位置</string>
+    <string name="location_name_hint">位置名称（可选）</string>
+    <string name="status_idle">未选择</string>
+    <string name="status_running">运行中</string>
+    <string name="status_paused">已暂停</string>
+    <string name="status_stopped">已停止</string>
+    <string name="status_failed">失败：%1$s</string>
+    <string name="status_progress">进度 %1$d%%</string>
+    <string name="status_running_progress">运行中 · 进度 %1$d%%</string>
+    <string name="status_route_completed">路线已完成 · 进度 %1$d%%</string>
+    <string name="route_completed_toast">路线已走完，继续保持在终点位置</string>
+    <string name="mode_location">单点</string>
+    <string name="mode_route">路线</string>
+    <string name="mode_switch_running">请先停止当前模拟再切换模式</string>
+    <string name="location_mode_hint">在地图上点击选择目标位置</string>
+    <string name="route_mode_hint">在地图上点击添加路线点</string>
+    <string name="route_point_added">已添加第 %1$d 个路线点</string>
+    <string name="target_cleared">已清除目标点</string>
+    <string name="error_stop_before_select">模拟运行中，请先停止模拟再选择位置</string>
+
+    <!-- 地图页：操作按钮 -->
+    <string name="action_start_mock">开始模拟</string>
+    <string name="action_stop_mock">停止模拟</string>
+    <string name="action_start_route">开始路线</string>
+    <string name="action_pause_route">暂停</string>
+    <string name="action_resume_route">继续</string>
+    <string name="action_clear_route">清空路线</string>
+    <string name="action_save_route">保存路线</string>
+    <string name="action_my_location">回到我的位置</string>
+
+    <!-- 路线面板 -->
+    <string name="route_speed_label">速度（km/h）</string>
+    <string name="route_speed_hint">速度</string>
+    <string name="route_speed_error">请输入 0 到 300 之间的速度</string>
+    <string name="route_loop_label">循环路线</string>
+    <string name="route_stats">%1$d 个点 · 总长 %2$s</string>
+    <string name="route_stats_empty">还没有路线点，在地图上点击即可添加</string>
+    <string name="route_saved">路线已保存：%1$s</string>
+    <string name="route_save_failed">路线保存失败</string>
+    <string name="route_cleared">路线已清空</string>
+    <string name="route_loaded">已载入路线：%1$s</string>
+    <string name="route_name_hint">路线名称</string>
+    <string name="route_default_name">路线 #%1$d</string>
+    <string name="save_route_title">保存路线</string>
+    <string name="no_saved_routes">还没有保存的路线</string>
+    <string name="delete_route_title">删除路线</string>
+    <string name="delete_route_message">确定要删除路线「%1$s」吗？</string>
+    <string name="route_deleted">已删除路线</string>
+    <string name="route_details">%1$d 个点 · %2$.0f km/h · %3$s</string>
+    <string name="route_loop_yes">循环</string>
+    <string name="route_loop_no">不循环</string>
+    <string name="distance_meters">%1$.1f 米</string>
+    <string name="distance_kilometers">%1$.2f 公里</string>
+
+    <!-- 搜索 -->
+    <string name="search_hint">搜索地点或输入坐标（纬度,经度）</string>
+    <string name="action_search">搜索</string>
+    <string name="action_clear_search">清空搜索</string>
+    <string name="search_no_results">没有找到匹配的地点</string>
+    <string name="search_failed_check_network">搜索失败，请检查网络连接</string>
+    <string name="search_failed_no_network">当前无网络，无法搜索地址；可以直接输入坐标（纬度,经度）</string>
+    <string name="search_coordinate_format_error">坐标格式错误，请输入「纬度,经度」</string>
+    <string name="search_result_coordinates">%1$.6f, %2$.6f</string>
+    <string name="search_result_selected">已选择：%1$s</string>
+
+    <!-- 收藏与历史 -->
+    <string name="no_favorites">还没有收藏的地点</string>
+    <string name="no_history">还没有历史记录</string>
+    <string name="action_remove_favorite">取消收藏</string>
+    <string name="favorite_added">已加入收藏</string>
+    <string name="favorite_already_exists">该位置已在收藏中</string>
+    <string name="favorite_removed">已取消收藏</string>
+    <string name="place_renamed">名称已修改</string>
+    <string name="place_deleted">已删除记录</string>
+    <string name="place_save_failed">操作失败，请重试</string>
+    <string name="rename_place_title">重命名地点</string>
+    <string name="delete_place_title">删除记录</string>
+    <string name="delete_place_message">确定要删除记录「%1$s」吗？</string>
+    <string name="place_default_name">位置 #%1$d</string>
+    <string name="place_unnamed">未命名位置</string>
+    <string name="action_rename">重命名</string>
+    <string name="action_delete">删除</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_ok">确定</string>
+    <string name="action_done">完成</string>
+    <string name="action_more">更多操作</string>
+    <string name="record_menu_title">记录操作</string>
+
+    <!-- 坐标输入 -->
+    <string name="coordinate_input_desc">输入纬度、经度并选择坐标系，点击「设为当前位置」后会换算成 WGS84 注入系统。</string>
+    <string name="label_latitude">纬度（-90 ~ 90）</string>
+    <string name="label_longitude">经度（-180 ~ 180）</string>
+    <string name="label_coordinate_system">坐标系</string>
+    <string name="coord_wgs84">WGS84</string>
+    <string name="coord_gcj02">GCJ-02</string>
+    <string name="coord_bd09">BD-09</string>
+    <string name="action_set_location">设为当前位置</string>
+    <string name="action_add_favorite">加入收藏</string>
+    <string name="current_location_title">当前选中的位置：</string>
+    <string name="error_lat_range">纬度必须在 -90 到 90 之间</string>
+    <string name="error_lng_range">经度必须在 -180 到 180 之间</string>
+    <string name="error_invalid_number">请输入有效的数字</string>
+    <string name="error_coordinate_empty">请输入纬度和经度</string>
+    <string name="location_set">位置已设置</string>
+    <string name="coordinate_system_switched">默认坐标系已切换：%1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_map_provider_title">地图提供商</string>
+    <string name="settings_map_provider_desc">默认使用 OpenStreetMap 瓦片；若加载缓慢或无法访问，可切换其他瓦片源。约定使用地图 SDK/谷歌地图，本本应用使用 Leaflet + 在线瓦片。</string>
+    <string name="map_provider_switched">已切换地图提供商：%1$s</string>
+    <string name="map_provider_auto">自动（按地区）</string>
+    <string name="map_provider_osm">OpenStreetMap</string>
+    <string name="map_provider_carto">CARTO</string>
+    <string name="map_provider_opentopo">OpenTopoMap</string>
+    <string name="settings_coordinate_system_title">默认坐标系</string>
+    <string name="settings_coordinate_system_desc">用于坐标输入与显示的默认坐标系；注入系统时统一换算为 WGS84。</string>
+    <string name="settings_self_check_title">模拟定位自检</string>
+    <string name="settings_self_check_desc">检查开发者选项、模拟位置应用、定位权限、通知权限、系统定位与电池优化六项设置，并给出跳转入口。</string>
+    <string name="action_run_self_check">运行自检</string>
+    <string name="settings_about_title">关于</string>
+    <string name="settings_about_desc">开源模拟定位应用，仅用于开发与测试；不包含订阅、统计等商业功能。</string>
+    <string name="action_about">查看关于</string>
+    <string name="about_title">关于本应用</string>
+    <string name="about_message">模拟定位（MockLocation OSS）是一个开源的 Android 模拟定位应用：用地图选点或路线，把系统定位替换成你指定的坐标。\n\n实现要点：\n1. 使用 Android 官方「模拟位置应用」机制，通过 LocationManager 的 gps 与 network 测试 provider 注入坐标；设备具备 Google Play 服务时额外写入 Fused 定位 mock。\n2. 地图使用 WebView + 打包的 Leaflet + OpenStreetMap 在线瓦片，不依赖任何私有地图 SDK 与 API key；地址搜索使用 OpenStreetMap Nominatim。\n3. 收藏/历史/路线用 SQLite 持久化，坐标支持 WGS84/GCJ-02/BD-09 三种坐标系。\n\n使用前需要在开发者选项中把本应用选为模拟位置应用，并授予定位权限。</string>
+
+    <!-- 自检 -->
+    <string name="self_check_title">模拟定位自检</string>
+    <string name="self_check_desc">以下六项全部通过后，模拟定位才能稳定工作；未通过的项可以点「去设置」跳转。</string>
+    <string name="self_check_developer_options">开发者选项</string>
+    <string name="self_check_developer_options_detail">需要在开发者选项中打开「允许模拟位置」。</string>
+    <string name="self_check_mock_app">模拟位置应用</string>
+    <string name="self_check_mock_app_detail">请在开发者选项的「选择模拟位置应用」中选择本应用。</string>
+    <string name="self_check_location_permission">定位权限</string>
+    <string name="self_check_location_permission_detail">需要授予精确或大致定位权限，用于「回到我的位置」。</string>
+    <string name="self_check_notification_permission">通知权限</string>
+    <string name="self_check_notification_permission_detail">前台服务通知需要通知权限才能显示暂停与停止按钮。</string>
+    <string name="self_check_location_switch">系统定位开关</string>
+    <string name="self_check_location_switch_detail">系统总定位开关需要打开。</string>
+    <string name="self_check_battery_optimization">电池优化</string>
+    <string name="self_check_battery_optimization_detail">建议把本应用加入电池优化白名单，避免后台模拟被系统中断。</string>
+    <string name="self_check_pass">已通过</string>
+    <string name="self_check_fail">未通过</string>
+    <string name="self_check_all_passed">六项自检全部通过</string>
+    <string name="action_go_settings">去设置</string>
+    <string name="action_recheck">重新检查</string>
+    <string name="self_check_jump_failed">无法打开系统设置页面</string>
+    <string name="self_check_completed">自检已完成</string>
+
+    <!-- 评价弹窗 -->
+    <string name="review_title">喜欢这个应用吗？</string>
+    <string name="review_message">你已经成功使用模拟定位 %1$d 次。如果这个应用对你有帮助，欢迎到项目仓库点一个 Star。本弹窗只记录本地状态，不会跳转应用商店。</string>
+    <string name="review_positive">点个赞</string>
+    <string name="review_negative">以后再说</string>
+    <string name="review_thanks">谢谢支持！</string>
+
+    <!-- 权限与错误提示 -->
+    <string name="location_permission_denied">定位权限被拒绝，无法获取当前位置</string>
+    <string name="write_secure_settings_denied">没有修改系统设置的权限</string>
+    <string name="error_no_selected_point">请先在地图上选择位置</string>
+    <string name="error_speed_range">速度必须在 0 到 300 km/h 之间</string>
+    <string name="error_service_not_ready">模拟服务尚未就绪，请稍后重试</string>
+    <string name="error_start_failed">启动模拟失败</string>
+    <string name="location_unavailable">无法获取当前位置，请确认系统定位已开启</string>
+    <string name="location_found">已定位到当前位置</string>
+    <string name="location_requesting">正在获取当前位置…</string>
+
+    <!-- 杂项 -->
+    <string name="map_loading">地图加载中…</string>
+    <string name="mock_running_location">正在模拟单点位置</string>
+    <string name="mock_running_route">正在模拟路线</string>
+    <string name="mock_stopped">模拟已停止</string>
+    <string name="mock_started">模拟已开始</string>
+    <string name="refresh">刷新</string>
+    <string name="time_pattern">MM-dd HH:mm</string>
+    <string name="speed_value">%1$d km/h</string>
+</resources>
