@@ -2,6 +2,7 @@ package io.github.mocklocation.oss;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.AppOpsManager;
@@ -71,6 +72,58 @@ public class MockLocationServiceRealEngineTest {
         assertEquals(114.0579, last.getLongitude(), 1e-9);
         assertEquals(3.0f, last.getAccuracy(), 1e-6);
         assertEquals(0.0f, last.getSpeed(), 1e-6);
+    }
+
+    private Intent routeIntent(double[] lats, double[] lons, double speedMps, boolean loop) {
+        return new Intent(app, MockLocationService.class)
+                .setAction(MockLocationService.ACTION_START_ROUTE)
+                .putExtra(MockLocationService.EXTRA_ROUTE_LATITUDES, lats)
+                .putExtra(MockLocationService.EXTRA_ROUTE_LONGITUDES, lons)
+                .putExtra(MockLocationService.EXTRA_ROUTE_SPEED_MPS, speedMps)
+                .putExtra(MockLocationService.EXTRA_ROUTE_LOOP, loop);
+    }
+
+    @Test
+    public void 路线模拟全链路推进并在完成后停在终点() {
+        double startLat = 39.9000;
+        double endLat = startLat + 1000.0 / 111194.9;
+        service.onStartCommand(routeIntent(new double[]{startLat, endLat}, new double[]{116.4, 116.4}, 100.0, false), 0, 0);
+        ShadowLooper.idleMainLooper(3, TimeUnit.SECONDS);
+
+        assertTrue(service.getState().running);
+        assertEquals(io.github.mocklocation.oss.core.MockState.Mode.ROUTE, service.getState().mode);
+        android.location.Location after3s = RecordingLocationManagerShadow.lastLocation("gps");
+        assertNotNull(after3s);
+        assertTrue("3 秒后应已北移", after3s.getLatitude() > startLat);
+        assertEquals(116.4, after3s.getLongitude(), 1e-9);
+
+        ShadowLooper.idleMainLooper(12, TimeUnit.SECONDS);
+        assertTrue("非循环路线应完成", service.getState().routeCompleted);
+        assertTrue("完成后仍在运行（保持终点）", service.getState().running);
+        android.location.Location last = RecordingLocationManagerShadow.lastLocation("gps");
+        assertEquals(endLat, last.getLatitude(), 1e-6);
+        assertEquals(0.0f, last.getSpeed(), 1e-6);
+    }
+
+    @Test
+    public void 暂停后系统接口收到的坐标不再变化() {
+        double startLat = 39.9000;
+        double endLat = startLat + 1000.0 / 111194.9;
+        service.onStartCommand(routeIntent(new double[]{startLat, endLat}, new double[]{116.4, 116.4}, 10.0, false), 0, 0);
+        ShadowLooper.idleMainLooper(2, TimeUnit.SECONDS);
+        int beforeCount = RecordingLocationManagerShadow.gpsLocations.size();
+        android.location.Location pausedAt = RecordingLocationManagerShadow.lastLocation("gps");
+        assertNotNull(pausedAt);
+
+        service.onStartCommand(new Intent(app, MockLocationService.class)
+                .setAction(MockLocationService.ACTION_TOGGLE_ROUTE_PAUSE), 0, 0);
+        ShadowLooper.idleMainLooper(3, TimeUnit.SECONDS);
+        assertTrue(service.getState().paused);
+        android.location.Location afterPause = RecordingLocationManagerShadow.lastLocation("gps");
+        assertTrue("暂停期间仍每秒注入", RecordingLocationManagerShadow.gpsLocations.size() > beforeCount);
+        assertEquals("暂停期间坐标不应变化", pausedAt.getLatitude(), afterPause.getLatitude(), 1e-9);
+        assertEquals(pausedAt.getLongitude(), afterPause.getLongitude(), 1e-9);
+        assertEquals(0.0f, afterPause.getSpeed(), 1e-6);
     }
 
     @Test
